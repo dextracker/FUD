@@ -65,7 +65,6 @@ function App() {
       const position: Position = await getLocation();
       const { latitude, longitude } = position.coords;
       setLocation({ latitude, longitude });
-      console.log('Location recieved');
       await getCleverTextPlaceholder({ latitude, longitude });
     } catch (error) {
       console.log('Unable to retrieve your location', error);
@@ -200,11 +199,8 @@ function App() {
 					},
 				],
 			});
-			console.log(response.message.content!.replace(/"/g, ''));
 			setPlaceholder(response.message.content!.replace(/"/g, ''));
       suggestedRecipes?.push(response.message.content!.replace(/"/g, ''))
-      console.log("prev recipes" + suggestedRecipes)
-			console.log(response);
 		} catch (error) {
 			console.error('Error:', error);
 		}

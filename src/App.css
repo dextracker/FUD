@@ -2,16 +2,19 @@
 
 .App {
   display: flex;
-  justify-content: center;
+  justify-content: center; /* Adjusted to flex-start to allow content to start from the top */
   align-items: center;
-  height: 100vh;
+  min-height: 100vh; /* Adjusted to min-height to allow the content to grow beyond the viewport height */
   background-color: #f0f0f0;
   font-family: 'San Francisco Pro', sans-serif;
+  padding-top: 20px; /* Added padding at the top to give some space */
 }
 
 .rectangle {
   width: 90%;
   max-width: 400px;
+  max-height: 80vh; /* Set a max-height to allow for scrolling */
+  overflow-y: auto; /* Allow vertical scrolling */
   background-color: #fff;
   border-radius: 25px;
   box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.05);

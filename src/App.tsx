@@ -46,7 +46,7 @@ function App() {
 					: (() => {
 							console.log('No Location');
 					  })();
-			}, 15000); // Change the placeholder text every 2000 milliseconds (2 seconds)
+			}, 5000); // Change the placeholder text every 2000 milliseconds (2 seconds)
 			return () => clearInterval(intervalId);
 		}
 	}, [output]);
@@ -123,17 +123,21 @@ function App() {
                     - Use a professional style optimized for mobile viewing.
                     - Create distinct sections for different parts of the content.
                   3. **Colors**:
-                    - Main colors: #B0DF94, #F9C6C5, #BCDEF2, #FAEF86.
+                    - Main colors: #B0DF94, #F9C6C5, #BCDEF2, #FAEF86, #1C1C1E.
                     - Light text against dark backgrounds.
                     - Avoid using green or pink for the text.
                   4. **Typography**:
-                    - Include a large title.
-                    - Align all text to the left.
+                    - Introduce an interesting font.
+                    - Include a large title in its own styled container.
+                    - Align all text to the left. including list elements
+                    - prefer dark text
+                    - wrap text in titles
+                    5. **Container**:
                     - Use styled containers for individual ingredients, instructions, etc., and a grouped container for each section.
-                  5. **Container**:
                     - Rounded corners.
                     - Scrollable.
-                    - Apply transparency to the main colors for a professional look.
+                    - Apply transparency to the main colors for containers to look smooth.
+                    - Add colored rounded boxes round each title, only around the title, and around the group.
                   Ensure that the styles only affect elements within the div. Thank you.
                   `;
 
@@ -144,7 +148,7 @@ function App() {
 					{
 						role: 'system',
 						content:
-							'You are a helpful ai chef assitant who generates new recipes and suggest recipes based on various factors about a person',
+							'You are a helpful ai chef assitant  who generates new recipes and suggest recipes based on various factors about a person',
 					},
 					{
 						role: 'user',

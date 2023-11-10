@@ -2,7 +2,6 @@
 
 import React, { useEffect, useState } from 'react';
 import lottie from 'lottie-web';
-import './App.css';
 import { OpenAIClient } from 'openai-fetch';
 import DOMpurify from 'dompurify';
 
@@ -10,9 +9,44 @@ const client = new OpenAIClient({
 	apiKey: process.env.REACT_APP_OPENAI_API_KEY,
 });
 
+interface User {
+	name: string;
+	email: string;
+	location: string;
+  }
+
+// Define the UserInfoTab component here or import it if it's in a separate file
+const UserInfoTab: React.FC<{ user: User }> = ({ user }) => {
+	// State to track if the extra information is visible
+	const [isInfoVisible, setIsInfoVisible] = useState(false);
+  
+	// Function to toggle the visibility of the extra information
+	const toggleInfo = () => {
+	  setIsInfoVisible(!isInfoVisible);
+	};
+  
+	return (
+	  <div className="absolute top-0 left-0 mt-4 ml-4 p-4 bg-white shadow-md rounded-lg max-w-xs">
+		<div className="flex items-center space-x-4">
+		  {/* Make the name a button to toggle the extra information */}
+		  <button onClick={toggleInfo} className="text-lg font-semibold focus:outline-none">
+			{user.name}
+		  </button>
+		</div>
+		{/* Conditionally render the extra information based on isInfoVisible */}
+		{isInfoVisible && (
+		  <div className="mt-3">
+			<p className="text-gray-600"><strong>Email:</strong> {user.email}</p>
+			<p className="text-gray-600"><strong>Location:</strong> {user.location}</p>
+		  </div>
+		)}
+	  </div>
+	);
+  };
+
 function App() {
 	const [output, setOutput] = useState('');
-	const [promptOutput, setPromptOutput] = useState('');
+	const [promptOutput, setPromptOutput] = useState<string[]>();
 	const [placeholder, setPlaceholder] = useState('');
 	const [htmlContent, setHtmlContent] = useState('');
 	const [value, setValue] = useState('');
@@ -22,6 +56,9 @@ function App() {
 	}>({ latitude: 0, longitude: 0 });
 
 	const [suggestedRecipes, setSuggestedRecipes] = useState<string[]>([]);
+
+	
+	  
 
 	interface Coords {
 		latitude: number;
@@ -94,6 +131,12 @@ function App() {
 		await handleGetLocation();
 	};
 
+	// Sample user object that matches the User interface
+	const user: User = {
+			name: 'Jane Doe',
+			email: 'jane.doe@example.com',
+			location: 'New York',
+ 	};
 	const handleKeyDown = (e: { key: string }) => {
 		if (e.key === 'Enter') {
 			lottie.loadAnimation({
@@ -119,28 +162,14 @@ function App() {
                     - Recipe only, with no additional comments.
                     - Include a description and historical background of the dish at the end.
                   2. **Styling**:
-                    - Enclose everything in a styled \`div\` with inline CSS for HTML rendering.
-                    - Use a professional style optimized for mobile viewing.
-                    - Create distinct sections for different parts of the content.
-                  3. **Colors**:
-                    - Main colors: #B0DF94, #F9C6C5, #BCDEF2, #FAEF86, #1C1C1E.
-                    - Light text against dark backgrounds.
-                    - Avoid using green or pink for the text.
-                  4. **Typography**:
-                    - Introduce an interesting font.
-                    - Include a large title in its own styled container.
-                    - Align all text to the left. including list elements
-                    - prefer dark text
-                    - wrap text in titles
-                    5. **Container**:
-                    - Use styled containers for individual ingredients, instructions, etc., and a grouped container for each section.
-                    - Rounded corners.
-                    - Scrollable.
-                    - Apply transparency to the main colors for containers to look smooth.
-                    - Add colored rounded boxes round each title, only around the title, and around the group.
-                  Ensure that the styles only affect elements within the div. Thank you.
+                    - separate each section by using an '@' delimiter.
                   `;
-
+		console.log(query);
+		const guidelines = 'vegan, no meat, healthy'
+		const querys = [
+			`Provide 5 recipe names for this users profile ${guidelines}. Limit to approximately 10 tokens, and provide all the recipe names in one json object`,
+			`Please provide a recipe for ${output}, ${guidelines ? `that conforms to these restrictions: ${guidelines}`: ''} in as few tokens as possible, give me just the ingredients in json format.`,
+		]
 		try {
 			let response = await client.createChatCompletion({
 				model: 'gpt-3.5-turbo',
@@ -152,13 +181,13 @@ function App() {
 					},
 					{
 						role: 'user',
-						content: query,
+						content: querys[0],
 					},
 				],
 			});
-
-			setPromptOutput(response.message.content!);
-			setHtmlContent(response.message.content!);
+			console.log(response);
+			let recipes = JSON.parse(response.message.content!);
+			setPromptOutput(recipes);
 			lottie.destroy('loading');
 		} catch (error) {
 			console.error('Error:', error);
@@ -242,6 +271,8 @@ function App() {
 
 	return (
 		<div className="App">
+			{/* Include the UserInfoTab component and pass the user object as a prop */}
+			<UserInfoTab user={user} />
 			<div className="rectangle">
 				<div id="animation" style={{ width: '100%', height: '100%' }}></div>
 				<div className="output-window">
@@ -257,6 +288,8 @@ function App() {
 						className="text-input"
 					/>
 				</div>
+				{/* <h1 className="text-3xl font-bold underline text-white ">Hello world!</h1> */}
+
 				<>
 					<div id="loading" style={{ width: '100%', height: '100%' }}></div>
 
@@ -264,8 +297,16 @@ function App() {
 						<>
 							<div
 								style={{ overflow: 'auto', maxHeight: '500px' }}
-								dangerouslySetInnerHTML={{ __html: htmlContent }}
-							></div>
+							>
+								<>
+								{promptOutput ? (<a> {promptOutput[0]} </a>) : <></>}
+								{promptOutput ? (<a> {promptOutput[1]} </a>) : <></>}
+								{promptOutput ? (<a> {promptOutput[2]} </a>) : <></>}
+								{promptOutput ? (<a> {promptOutput[3]} </a>) : <></>}
+								{promptOutput ? (<a> {promptOutput[4]} </a>) : <></>}
+								{promptOutput ? (<a> {promptOutput[5]} </a>) : <></>}
+								</>
+							</div>
 							{/* <ReactMarkdown className="output-window">
                 {promptOutput.toString()}
               </ReactMarkdown> */}

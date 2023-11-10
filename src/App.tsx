@@ -5,6 +5,8 @@ import lottie from 'lottie-web';
 import './App.css';
 import { OpenAIClient } from 'openai-fetch';
 import DOMpurify from 'dompurify';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faCog } from '@fortawesome/free-solid-svg-icons';
 
 const client = new OpenAIClient({
 	apiKey: process.env.REACT_APP_OPENAI_API_KEY,
@@ -20,6 +22,15 @@ function App() {
 		latitude: number;
 		longitude: number;
 	}>({ latitude: 0, longitude: 0 });
+	
+	const [settingsVisible, setSettingsVisible] = useState(false);
+	const [dropdownOneValue, setDropdownOneValue] = useState('');
+	const [dropdownTwoValue, setDropdownTwoValue] = useState('');
+	const [dropdownThreeValue, setDropdownThreeValue] = useState('');
+
+	const toggleSettings = () => {
+		setSettingsVisible(!settingsVisible);
+	  };
 
 	const [suggestedRecipes, setSuggestedRecipes] = useState<string[]>([]);
 
@@ -114,7 +125,7 @@ function App() {
 	};
 
 	async function talkToGPT() {
-		const query = `NOTICE: Please provide a recipe for ${output} including a description and historical background of the dish. The response should adhere to the following formatting guidelines:
+		const query = `NOTICE: Please provide a recipe using these ingedients [${output}] for ${dropdownOneValue}. Make it ${dropdownTwoValue} and ${dropdownThreeValue}.  The response should adhere to the following formatting guidelines:
                   1. **Content**:
                     - Recipe only, with no additional comments.
                     - Include a description and historical background of the dish at the end.
@@ -122,23 +133,13 @@ function App() {
                     - Enclose everything in a styled \`div\` with inline CSS for HTML rendering.
                     - Use a professional style optimized for mobile viewing.
                     - Create distinct sections for different parts of the content.
-                  3. **Colors**:
-                    - Main colors: #B0DF94, #F9C6C5, #BCDEF2, #FAEF86, #1C1C1E.
-                    - Light text against dark backgrounds.
-                    - Avoid using green or pink for the text.
-                  4. **Typography**:
-                    - Introduce an interesting font.
-                    - Include a large title in its own styled container.
-                    - Align all text to the left. including list elements
-                    - prefer dark text
-                    - wrap text in titles
-                    5. **Container**:
+                  3. **Container**:
                     - Use styled containers for individual ingredients, instructions, etc., and a grouped container for each section.
                     - Rounded corners.
                     - Scrollable.
                     - Apply transparency to the main colors for containers to look smooth.
                     - Add colored rounded boxes round each title, only around the title, and around the group.
-                  Ensure that the styles only affect elements within the div. Thank you.
+                  Ensure that the styles only affect elements within the div.
                   `;
 
 		try {
@@ -148,7 +149,7 @@ function App() {
 					{
 						role: 'system',
 						content:
-							'You are a helpful ai chef assitant  who generates new recipes and suggest recipes based on various factors about a person',
+							'You are a helpful ai chef assitant who generates new and personalized recipes',
 					},
 					{
 						role: 'user',
@@ -200,21 +201,15 @@ function App() {
 	async function getCleverTextPlaceholder(_location: Coords) {
 		const location: Location = await getReverseGeocodingData(_location);
 		const locationString =
-			location.city === 'Unknown' &&
-			location.state === 'Unknown' &&
 			location.country === 'Unknown'
 				? ''
-				: `the location ${location.city}, ${location.state}, ${location.country}, and `;
+				: `${location.country}`;
 		const suggestedRecipesString = suggestedRecipes
 			? ''
-			: `, that doesnt include these recipes, exclude:[${suggestedRecipes}]`;
+			: `exclude:[${suggestedRecipes}]`;
 		const query = `
-      given ${locationString},
-      the season based on this date:${new Date().toDateString()},
-      suggest me a recipe very different from the following list ${suggestedRecipesString}.
-      Try to add a lot of variety and detail but heavily bias towards in seasonal ingredients,
-      name them without the season though and with the origin at the beginning, and adjectives about the taste.
-      Only respond with one recipe name nothing else, in the form of "".
+      provide 10 ingredients from ${locationString} popular around ${new Date().toDateString()}. ${suggestedRecipesString}.
+      Only respond with a list of ingredients separated by commas and all enclosed in "". nothing else.
     `;
 		try {
 			let response = await client.createChatCompletion({
@@ -256,6 +251,34 @@ function App() {
 						onKeyDown={handleKeyDown}
 						className="text-input"
 					/>
+					<FontAwesomeIcon icon={faCog} onClick={toggleSettings} className="gear-icon" />
+  					{settingsVisible && (
+    					<div className="settings-menu">
+      					<select onChange={(e) => setDropdownOneValue(e.target.value)}>
+        					<option value="">--Select Meal--</option>
+							<option value="breakfast">Breakfast</option>
+							<option value="lunch">Lunch</option>
+							<option value="dinner">Dinner</option>
+        					{/* Add options here */}
+      					</select>
+      					<select onChange={(e) => setDropdownTwoValue(e.target.value)}>
+        					<option value="">--Select Flavor 1--</option>
+							<option value="sweet">Sweet</option>
+							<option value="spicy">Spicy</option>
+							<option value="sour">Sour</option>
+							<option value="savory">Savory</option>
+							{/* Add options here */}
+      					</select>
+      					<select onChange={(e) => setDropdownThreeValue(e.target.value)}>
+						  <option value="">--Select Flavor 2--</option>
+							<option value="sweet">Sweet</option>
+							<option value="spicy">Spicy</option>
+							<option value="sour">Sour</option>
+							<option value="savory">Savory</option>
+        					{/* Add options here */}
+      					</select>
+    					</div>
+  					)}
 				</div>
 				<>
 					<div id="loading" style={{ width: '100%', height: '100%' }}></div>

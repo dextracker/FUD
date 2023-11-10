@@ -24,6 +24,10 @@
   gap: 20px;
   text-align: center;
   margin: 20px;
+  position: relative; /* This will be the reference for the absolute positioning of children */
+  align-items: center; /* Center align the children vertically */
+  justify-content: right; /* Space out children */
+  padding-right: 30px; /* Add padding to make space for the gear icon */
 }
 
 .text-input {
@@ -34,7 +38,42 @@
   width: 100%;
   box-sizing: border-box;
   outline: none;
-  -webkit-appearance: none;
+  flex-grow: 1; /* Allow the input to fill the space */
+}
+
+.gear-icon {
+  position: absolute;
+  top: 30px;
+  right: 20px;
+  transform: translateY(-50%);
+  cursor: pointer;
+  z-index: 2;
+}
+
+.settings-menu {
+  position: absolute;
+  right: 10px; /* Align the right edge with the gear icon */
+  top: 50px; /* Position just below the input container */
+  background: white;
+  border-radius: 14px;
+  border: 1px solid #e5e5e5;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-right: 10px;
+  padding-left: 10px;
+  display: flex;
+  flex-direction: column;
+  z-index: 1;
+  width: 100px; /* Set a specific width */
+  min-height: 10px; /* Set a minimum height, it will expand if content is larger */
+  max-height: 300px; /* Set a maximum height */
+  overflow-y: auto; /* Allows scrolling if content exceeds the max-height */
+}
+
+.settings-menu select {
+  margin-bottom: 2px;
+  margin-top: 2px;
+  font-size: 12px;
 }
 
 @keyframes fadeIn {
@@ -54,8 +93,8 @@
   text-align: left;
   border-color: #373738;
   color: #e5e5e5;
+  display: flex;
 }
-
 
 /* Smoothing out input field for iOS */
 .text-input:focus {

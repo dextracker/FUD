@@ -9,6 +9,41 @@ const client = new OpenAIClient({
 	apiKey: process.env.REACT_APP_OPENAI_API_KEY,
 });
 
+interface User {
+	name: string;
+	email: string;
+	location: string;
+  }
+
+// Define the UserInfoTab component here or import it if it's in a separate file
+const UserInfoTab: React.FC<{ user: User }> = ({ user }) => {
+	// State to track if the extra information is visible
+	const [isInfoVisible, setIsInfoVisible] = useState(false);
+  
+	// Function to toggle the visibility of the extra information
+	const toggleInfo = () => {
+	  setIsInfoVisible(!isInfoVisible);
+	};
+  
+	return (
+	  <div className="absolute top-0 left-0 mt-4 ml-4 p-4 bg-white shadow-md rounded-lg max-w-xs">
+		<div className="flex items-center space-x-4">
+		  {/* Make the name a button to toggle the extra information */}
+		  <button onClick={toggleInfo} className="text-lg font-semibold focus:outline-none">
+			{user.name}
+		  </button>
+		</div>
+		{/* Conditionally render the extra information based on isInfoVisible */}
+		{isInfoVisible && (
+		  <div className="mt-3">
+			<p className="text-gray-600"><strong>Email:</strong> {user.email}</p>
+			<p className="text-gray-600"><strong>Location:</strong> {user.location}</p>
+		  </div>
+		)}
+	  </div>
+	);
+  };
+
 function App() {
 	const [output, setOutput] = useState('');
 	const [promptOutput, setPromptOutput] = useState<string[]>();
@@ -21,6 +56,9 @@ function App() {
 	}>({ latitude: 0, longitude: 0 });
 
 	const [suggestedRecipes, setSuggestedRecipes] = useState<string[]>([]);
+
+	
+	  
 
 	interface Coords {
 		latitude: number;
@@ -93,6 +131,12 @@ function App() {
 		await handleGetLocation();
 	};
 
+	// Sample user object that matches the User interface
+	const user: User = {
+			name: 'Jane Doe',
+			email: 'jane.doe@example.com',
+			location: 'New York',
+ 	};
 	const handleKeyDown = (e: { key: string }) => {
 		if (e.key === 'Enter') {
 			lottie.loadAnimation({
@@ -227,6 +271,8 @@ function App() {
 
 	return (
 		<div className="App">
+			{/* Include the UserInfoTab component and pass the user object as a prop */}
+			<UserInfoTab user={user} />
 			<div className="rectangle">
 				<div id="animation" style={{ width: '100%', height: '100%' }}></div>
 				<div className="output-window">
